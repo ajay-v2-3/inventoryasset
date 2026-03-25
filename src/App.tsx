@@ -10,6 +10,7 @@ import Dashboard from "@/pages/Dashboard";
 import Inventory from "@/pages/Inventory";
 import Assets from "@/pages/Assets";
 import Reports from "@/pages/Reports";
+import AdminPanel from "@/pages/AdminPanel";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import NotFound from "@/pages/NotFound";
@@ -31,6 +32,7 @@ const App = () => (
               <Route path="/inventory" element={<Inventory />} />
               <Route path="/assets" element={<Assets />} />
               <Route path="/reports" element={<Reports />} />
+              <Route path="/admin" element={<AdminPanel />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

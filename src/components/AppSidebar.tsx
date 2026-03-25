@@ -3,6 +3,7 @@ import {
   Package,
   Monitor,
   FileBarChart,
+  ShieldCheck,
   ChevronLeft,
   Box,
   LogOut,
@@ -31,6 +32,10 @@ const navItems = [
   { title: "Inventory", url: "/inventory", icon: Package },
   { title: "Assets", url: "/assets", icon: Monitor },
   { title: "Reports", url: "/reports", icon: FileBarChart },
+];
+
+const adminItems = [
+  { title: "Admin Panel", url: "/admin", icon: ShieldCheck },
 ];
 
 export function AppSidebar() {
