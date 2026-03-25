@@ -5,9 +5,14 @@ import {
   FileBarChart,
   ChevronLeft,
   Box,
+  LogOut,
+  Shield,
+  User,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { Badge } from "@/components/ui/badge";
 import {
   Sidebar,
   SidebarContent,
@@ -32,6 +37,7 @@ export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const { user, role, signOut } = useAuth();
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
@@ -73,13 +79,36 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-2">
-        <button
-          onClick={toggleSidebar}
-          className="flex w-full items-center justify-center rounded-lg p-2 text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
-        >
-          <ChevronLeft className={`h-4 w-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />
-        </button>
+      <SidebarFooter className="p-3 space-y-2">
+        {!collapsed && user && (
+          <div className="flex items-center gap-2 rounded-lg bg-sidebar-accent p-2.5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sidebar-primary/20">
+              <User className="h-4 w-4 text-sidebar-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-medium text-sidebar-foreground">{user.email}</p>
+              <Badge variant="secondary" className="mt-0.5 text-[10px] px-1.5 py-0">
+                <Shield className="h-2.5 w-2.5 mr-0.5" />
+                {role ?? "staff"}
+              </Badge>
+            </div>
+          </div>
+        )}
+        <div className="flex gap-1">
+          <button
+            onClick={signOut}
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg p-2 text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors text-sm"
+          >
+            <LogOut className="h-4 w-4" />
+            {!collapsed && <span>Sign out</span>}
+          </button>
+          <button
+            onClick={toggleSidebar}
+            className="flex items-center justify-center rounded-lg p-2 text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
+          >
+            <ChevronLeft className={`h-4 w-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />
+          </button>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );
