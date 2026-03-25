@@ -3,6 +3,7 @@ import {
   Package,
   Monitor,
   FileBarChart,
+  ClipboardList,
   ShieldCheck,
   ChevronLeft,
   Box,
@@ -36,6 +37,7 @@ const navItems = [
 
 const adminItems = [
   { title: "Admin Panel", url: "/admin", icon: ShieldCheck },
+  { title: "Audit Log", url: "/audit", icon: ClipboardList },
 ];
 
 export function AppSidebar() {
