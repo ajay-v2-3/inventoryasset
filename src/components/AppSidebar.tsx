@@ -3,6 +3,7 @@ import {
   Package,
   Monitor,
   FileBarChart,
+  ShieldCheck,
   ChevronLeft,
   Box,
   LogOut,
@@ -31,6 +32,10 @@ const navItems = [
   { title: "Inventory", url: "/inventory", icon: Package },
   { title: "Assets", url: "/assets", icon: Monitor },
   { title: "Reports", url: "/reports", icon: FileBarChart },
+];
+
+const adminItems = [
+  { title: "Admin Panel", url: "/admin", icon: ShieldCheck },
 ];
 
 export function AppSidebar() {
@@ -77,6 +82,28 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        {role === "admin" && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                      >
+                        <item.icon className="h-4.5 w-4.5 shrink-0" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="p-3 space-y-2">
