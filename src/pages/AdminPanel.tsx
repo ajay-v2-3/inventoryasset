@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { logAudit } from "@/lib/audit";
 import { Shield, Users, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -69,6 +70,7 @@ export default function AdminPanel() {
       toast.error("Failed to update role");
     } else {
       toast.success("Role updated");
+      logAudit("role_change", { target_user: userId, new_role: newRole });
       setUsers(prev => prev.map(u => u.user_id === userId ? { ...u, role: newRole } : u));
     }
   };
