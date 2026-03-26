@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { logAudit } from "@/lib/audit";
 import { Shield, Users, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -135,13 +135,14 @@ export default function AdminPanel() {
                     {u.user_id === user?.id ? (
                       <span className="text-xs text-muted-foreground">You</span>
                     ) : (
-                      <Select value={u.role} onValueChange={(v: "admin" | "staff") => changeRole(u.user_id, v)}>
-                        <SelectTrigger className="w-28 h-8 text-xs"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="admin">Admin</SelectItem>
-                          <SelectItem value="staff">Staff</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="flex items-center justify-end gap-2">
+                        <span className="text-xs text-muted-foreground">Staff</span>
+                        <Switch
+                          checked={u.role === "admin"}
+                          onCheckedChange={(checked) => changeRole(u.user_id, checked ? "admin" : "staff")}
+                        />
+                        <span className="text-xs text-muted-foreground">Admin</span>
+                      </div>
                     )}
                   </TableCell>
                 </TableRow>
