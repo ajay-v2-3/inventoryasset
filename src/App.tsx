@@ -12,7 +12,8 @@ import Assets from "@/pages/Assets";
 import Reports from "@/pages/Reports";
 import AdminPanel from "@/pages/AdminPanel";
 import AuditLog from "@/pages/AuditLog";
-import Login from "@/pages/Login";
+import StaffLogin from "@/pages/StaffLogin";
+import AdminLogin from "@/pages/AdminLogin";
 import Signup from "@/pages/Signup";
 import NotFound from "@/pages/NotFound";
 
