@@ -1,4 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 export interface Product {
   id: string;
@@ -20,14 +23,6 @@ export interface Asset {
   status: "Active" | "In Repair" | "Retired";
 }
 
-export interface Transaction {
-  id: string;
-  product_id: string;
-  type: "in" | "out";
-  quantity: number;
-  date: string;
-}
-
 export interface Activity {
   id: string;
   message: string;
@@ -35,105 +30,191 @@ export interface Activity {
   date: string;
 }
 
-const PRODUCTS_KEY = "ims_products";
-const ASSETS_KEY = "ims_assets";
-const ACTIVITIES_KEY = "ims_activities";
-
-function load<T>(key: string, fallback: T[]): T[] {
-  try {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function save<T>(key: string, data: T[]) {
-  localStorage.setItem(key, JSON.stringify(data));
-}
-
-// Seed data
-const seedProducts: Product[] = [
-  { id: "p1", product_name: "Wireless Mouse", category: "Electronics", quantity: 45, price: 29.99, supplier_name: "TechSupply Co", date_added: "2024-01-15" },
-  { id: "p2", product_name: "USB-C Cable", category: "Electronics", quantity: 3, price: 12.99, supplier_name: "CableWorld", date_added: "2024-02-01" },
-  { id: "p3", product_name: "Office Chair", category: "Furniture", quantity: 12, price: 249.99, supplier_name: "FurniPro", date_added: "2024-01-20" },
-  { id: "p4", product_name: "A4 Paper (500 sheets)", category: "Office Supplies", quantity: 2, price: 8.99, supplier_name: "PaperMart", date_added: "2024-03-01" },
-  { id: "p5", product_name: "Webcam HD 1080p", category: "Electronics", quantity: 20, price: 59.99, supplier_name: "TechSupply Co", date_added: "2024-02-15" },
-  { id: "p6", product_name: "Standing Desk", category: "Furniture", quantity: 8, price: 399.99, supplier_name: "FurniPro", date_added: "2024-03-10" },
-];
-
-const seedAssets: Asset[] = [
-  { id: "a1", asset_name: "MacBook Pro 14\"", asset_id: "AST-001", assigned_to: "John Smith", purchase_date: "2023-06-15", condition: "Good", status: "Active" },
-  { id: "a2", asset_name: "Dell Monitor 27\"", asset_id: "AST-002", assigned_to: "Jane Doe", purchase_date: "2023-08-20", condition: "Excellent", status: "Active" },
-  { id: "a3", asset_name: "HP LaserJet Printer", asset_id: "AST-003", assigned_to: "Office", purchase_date: "2022-11-10", condition: "Fair", status: "In Repair" },
-  { id: "a4", asset_name: "Ergonomic Keyboard", asset_id: "AST-004", assigned_to: "Mike Johnson", purchase_date: "2024-01-05", condition: "Excellent", status: "Active" },
-  { id: "a5", asset_name: "Old Desktop PC", asset_id: "AST-005", assigned_to: "Storage", purchase_date: "2020-03-12", condition: "Poor", status: "Retired" },
-];
-
-const seedActivities: Activity[] = [
-  { id: "act1", message: "New product added: Standing Desk", type: "product", date: "2024-03-10" },
-  { id: "act2", message: "Low stock alert: USB-C Cable (3 remaining)", type: "alert", date: "2024-03-09" },
-  { id: "act3", message: "Asset AST-003 status changed to In Repair", type: "asset", date: "2024-03-08" },
-  { id: "act4", message: "Low stock alert: A4 Paper (2 remaining)", type: "alert", date: "2024-03-07" },
-  { id: "act5", message: "New product added: Webcam HD 1080p", type: "product", date: "2024-02-15" },
-];
+export const LOW_STOCK_THRESHOLD = 5;
 
 export function useProducts() {
-  const [products, setProducts] = useState<Product[]>(() => load(PRODUCTS_KEY, seedProducts));
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
-  useEffect(() => { save(PRODUCTS_KEY, products); }, [products]);
-
-  const addProduct = useCallback((p: Omit<Product, "id">) => {
-    const newP = { ...p, id: crypto.randomUUID() };
-    setProducts(prev => [...prev, newP]);
-    addActivity(`New product added: ${p.product_name}`, "product");
-    return newP;
+  const fetchProducts = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) {
+      toast.error("Failed to load products");
+    } else {
+      setProducts(
+        (data ?? []).map((p: any) => ({
+          id: p.id,
+          product_name: p.product_name,
+          category: p.category,
+          quantity: p.quantity,
+          price: Number(p.price),
+          supplier_name: p.supplier_name,
+          date_added: p.date_added,
+        }))
+      );
+    }
+    setLoading(false);
   }, []);
 
-  const updateProduct = useCallback((id: string, updates: Partial<Product>) => {
-    setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
-  }, []);
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
-  const deleteProduct = useCallback((id: string) => {
-    setProducts(prev => prev.filter(p => p.id !== id));
-  }, []);
+  const addProduct = useCallback(
+    async (p: Omit<Product, "id">) => {
+      if (!user) return;
+      const { data, error } = await supabase
+        .from("products")
+        .insert({ ...p, user_id: user.id })
+        .select()
+        .single();
+      if (error) {
+        toast.error("Failed to add product");
+      } else {
+        setProducts((prev) => [{ ...p, id: data.id, price: Number(data.price) }, ...prev]);
+        addActivity(`New product added: ${p.product_name}`, "product", user.id);
+      }
+    },
+    [user]
+  );
 
-  return { products, addProduct, updateProduct, deleteProduct };
+  const updateProduct = useCallback(
+    async (id: string, updates: Partial<Product>) => {
+      const { error } = await supabase.from("products").update(updates).eq("id", id);
+      if (error) {
+        toast.error("Failed to update product");
+      } else {
+        setProducts((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
+        );
+      }
+    },
+    []
+  );
+
+  const deleteProduct = useCallback(
+    async (id: string) => {
+      const { error } = await supabase.from("products").delete().eq("id", id);
+      if (error) {
+        toast.error("Failed to delete product");
+      } else {
+        setProducts((prev) => prev.filter((p) => p.id !== id));
+      }
+    },
+    []
+  );
+
+  return { products, loading, addProduct, updateProduct, deleteProduct };
 }
 
 export function useAssets() {
-  const [assets, setAssets] = useState<Asset[]>(() => load(ASSETS_KEY, seedAssets));
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
-  useEffect(() => { save(ASSETS_KEY, assets); }, [assets]);
-
-  const addAsset = useCallback((a: Omit<Asset, "id">) => {
-    const newA = { ...a, id: crypto.randomUUID() };
-    setAssets(prev => [...prev, newA]);
-    addActivity(`New asset added: ${a.asset_name}`, "asset");
-    return newA;
+  const fetchAssets = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("assets")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) {
+      toast.error("Failed to load assets");
+    } else {
+      setAssets(
+        (data ?? []).map((a: any) => ({
+          id: a.id,
+          asset_name: a.asset_name,
+          asset_id: a.asset_id,
+          assigned_to: a.assigned_to,
+          purchase_date: a.purchase_date,
+          condition: a.condition,
+          status: a.status as Asset["status"],
+        }))
+      );
+    }
+    setLoading(false);
   }, []);
 
-  const updateAsset = useCallback((id: string, updates: Partial<Asset>) => {
-    setAssets(prev => prev.map(a => a.id === id ? { ...a, ...updates } : a));
-  }, []);
+  useEffect(() => {
+    fetchAssets();
+  }, [fetchAssets]);
 
-  const deleteAsset = useCallback((id: string) => {
-    setAssets(prev => prev.filter(a => a.id !== id));
-  }, []);
+  const addAsset = useCallback(
+    async (a: Omit<Asset, "id">) => {
+      if (!user) return;
+      const { data, error } = await supabase
+        .from("assets")
+        .insert({ ...a, user_id: user.id })
+        .select()
+        .single();
+      if (error) {
+        toast.error("Failed to add asset");
+      } else {
+        setAssets((prev) => [{ ...a, id: data.id }, ...prev]);
+        addActivity(`New asset added: ${a.asset_name}`, "asset", user.id);
+      }
+    },
+    [user]
+  );
 
-  return { assets, addAsset, updateAsset, deleteAsset };
+  const updateAsset = useCallback(
+    async (id: string, updates: Partial<Asset>) => {
+      const { error } = await supabase.from("assets").update(updates).eq("id", id);
+      if (error) {
+        toast.error("Failed to update asset");
+      } else {
+        setAssets((prev) =>
+          prev.map((a) => (a.id === id ? { ...a, ...updates } : a))
+        );
+      }
+    },
+    []
+  );
+
+  const deleteAsset = useCallback(
+    async (id: string) => {
+      const { error } = await supabase.from("assets").delete().eq("id", id);
+      if (error) {
+        toast.error("Failed to delete asset");
+      } else {
+        setAssets((prev) => prev.filter((a) => a.id !== id));
+      }
+    },
+    []
+  );
+
+  return { assets, loading, addAsset, updateAsset, deleteAsset };
 }
 
 export function useActivities() {
-  const [activities, setActivities] = useState<Activity[]>(() => load(ACTIVITIES_KEY, seedActivities));
-  useEffect(() => { save(ACTIVITIES_KEY, activities); }, [activities]);
+  const [activities, setActivities] = useState<Activity[]>([]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("activities")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      setActivities(
+        (data ?? []).map((a: any) => ({
+          id: a.id,
+          message: a.message,
+          type: a.type as Activity["type"],
+          date: a.created_at?.slice(0, 10) ?? "",
+        }))
+      );
+    };
+    fetch();
+  }, []);
+
   return activities;
 }
 
-function addActivity(message: string, type: Activity["type"]) {
-  const activities = load<Activity>(ACTIVITIES_KEY, []);
-  const newAct: Activity = { id: crypto.randomUUID(), message, type, date: new Date().toISOString().slice(0, 10) };
-  save(ACTIVITIES_KEY, [newAct, ...activities].slice(0, 20));
+async function addActivity(message: string, type: Activity["type"], userId: string) {
+  await supabase.from("activities").insert({ message, type, user_id: userId });
 }
-
-export const LOW_STOCK_THRESHOLD = 5;
