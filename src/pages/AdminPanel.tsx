@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { logAudit } from "@/lib/audit";
 import { Shield, Users, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
