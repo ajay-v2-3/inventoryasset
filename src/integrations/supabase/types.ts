@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      activities: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      assets: {
+        Row: {
+          asset_id: string
+          asset_name: string
+          assigned_to: string
+          condition: string
+          created_at: string
+          id: string
+          purchase_date: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          asset_id: string
+          asset_name: string
+          assigned_to?: string
+          condition?: string
+          created_at?: string
+          id?: string
+          purchase_date?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          asset_id?: string
+          asset_name?: string
+          assigned_to?: string
+          condition?: string
+          created_at?: string
+          id?: string
+          purchase_date?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string
@@ -34,6 +94,42 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string
+          created_at: string
+          date_added: string
+          id: string
+          price: number
+          product_name: string
+          quantity: number
+          supplier_name: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          date_added?: string
+          id?: string
+          price?: number
+          product_name: string
+          quantity?: number
+          supplier_name?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          date_added?: string
+          id?: string
+          price?: number
+          product_name?: string
+          quantity?: number
+          supplier_name?: string
           user_id?: string
         }
         Relationships: []
