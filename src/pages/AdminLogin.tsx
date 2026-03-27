@@ -23,7 +23,7 @@ export default function AdminLogin() {
     if (error) {
       toast.error(error.message);
     } else {
-      navigate("/");
+      navigate("/dashboard");
     }
   };
 
@@ -71,6 +71,9 @@ export default function AdminLogin() {
         </form>
 
         <div className="text-center space-y-1">
+          <p className="text-sm text-muted-foreground">
+            <Link to="/forgot-password" className="text-primary font-medium hover:underline">Forgot password?</Link>
+          </p>
           <p className="text-sm text-muted-foreground">
             Don't have an account?{" "}
             <Link to="/signup" className="text-primary font-medium hover:underline">Sign up</Link>
