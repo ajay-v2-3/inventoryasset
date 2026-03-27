@@ -15,6 +15,7 @@ import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Sidebar,
   SidebarContent,
@@ -130,6 +131,7 @@ export function AppSidebar() {
           </div>
         )}
         <div className="flex gap-1">
+          <ThemeToggle />
           <button
             onClick={handleSignOut}
             className="flex flex-1 items-center justify-center gap-2 rounded-lg p-2 text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors text-sm"

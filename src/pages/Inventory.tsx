@@ -1,13 +1,16 @@
-import { useState, useMemo } from "react";
-import { Plus, Search, Pencil, Trash2 } from "lucide-react";
+import { useState, useMemo, useRef } from "react";
+import { Plus, Search, Pencil, Trash2, Download, Upload, ScanLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ProductDialog } from "@/components/ProductDialog";
+import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { useProducts, LOW_STOCK_THRESHOLD, type Product } from "@/lib/store";
+import { exportProductsCSV, parseProductsCSV } from "@/lib/csv";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 const categories = ["All", "Electronics", "Furniture", "Office Supplies", "Software", "Other"];
 
@@ -18,6 +21,8 @@ export default function Inventory() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
     return products.filter(p => {
@@ -36,6 +41,33 @@ export default function Inventory() {
     }
   };
 
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    const items = parseProductsCSV(text);
+    let count = 0;
+    for (const item of items) {
+      await addProduct(item);
+      count++;
+    }
+    toast.success(`Imported ${count} products`);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleScan = (code: string) => {
+    const found = products.find(p =>
+      p.product_name.toLowerCase().includes(code.toLowerCase()) ||
+      p.id === code
+    );
+    if (found) {
+      setSearch(found.product_name);
+      toast.success(`Found: ${found.product_name}`);
+    } else {
+      toast.error(`No product found for "${code}"`);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -43,9 +75,21 @@ export default function Inventory() {
           <h1 className="text-2xl font-bold text-foreground">Inventory</h1>
           <p className="text-sm text-muted-foreground">{products.length} products total</p>
         </div>
-        <Button onClick={() => { setEditing(null); setDialogOpen(true); }}>
-          <Plus className="h-4 w-4 mr-2" /> Add Product
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={() => setScannerOpen(true)}>
+            <ScanLine className="h-4 w-4 mr-1" /> Scan
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => exportProductsCSV(products)}>
+            <Download className="h-4 w-4 mr-1" /> Export
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+            <Upload className="h-4 w-4 mr-1" /> Import
+          </Button>
+          <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleImport} />
+          <Button onClick={() => { setEditing(null); setDialogOpen(true); }}>
+            <Plus className="h-4 w-4 mr-1" /> Add Product
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
@@ -111,6 +155,7 @@ export default function Inventory() {
       </div>
 
       <ProductDialog open={dialogOpen} onOpenChange={setDialogOpen} product={editing} onSave={handleSave} />
+      <BarcodeScanner open={scannerOpen} onOpenChange={setScannerOpen} onScan={handleScan} />
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
