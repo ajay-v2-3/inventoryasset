@@ -61,7 +61,7 @@ export default function AdminPanel() {
     setPendingChange(null);
   };
 
-  if (role !== "admin") return <Navigate to="/" replace />;
+  if (role !== "admin") return <Navigate to="/dashboard" replace />;
 
   const filtered = users.filter(u =>
     (u.full_name ?? "").toLowerCase().includes(search.toLowerCase()) || u.user_id.includes(search)

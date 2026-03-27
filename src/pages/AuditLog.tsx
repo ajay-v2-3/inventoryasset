@@ -66,7 +66,7 @@ export default function AuditLog() {
     fetchLogs();
   }, [role]);
 
-  if (role !== "admin") return <Navigate to="/" replace />;
+  if (role !== "admin") return <Navigate to="/dashboard" replace />;
 
   const filtered = entries.filter(e => {
     const matchesSearch =
