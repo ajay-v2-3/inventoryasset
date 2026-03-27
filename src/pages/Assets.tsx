@@ -1,13 +1,16 @@
-import { useState, useMemo } from "react";
-import { Plus, Search, Pencil, Trash2 } from "lucide-react";
+import { useState, useMemo, useRef } from "react";
+import { Plus, Search, Pencil, Trash2, Download, Upload, ScanLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { AssetDialog } from "@/components/AssetDialog";
+import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { useAssets, type Asset } from "@/lib/store";
+import { exportAssetsCSV, parseAssetsCSV } from "@/lib/csv";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 const statusFilter = ["All", "Active", "In Repair", "Retired"];
 
@@ -24,10 +27,12 @@ export default function Assets() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Asset | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
     return assets.filter(a => {
-      const matchSearch = a.asset_name.toLowerCase().includes(search.toLowerCase()) || a.assigned_to.toLowerCase().includes(search.toLowerCase());
+      const matchSearch = a.asset_name.toLowerCase().includes(search.toLowerCase()) || a.assigned_to.toLowerCase().includes(search.toLowerCase()) || a.asset_id.toLowerCase().includes(search.toLowerCase());
       const matchStatus = status === "All" || a.status === status;
       return matchSearch && matchStatus;
     });
@@ -42,6 +47,34 @@ export default function Assets() {
     }
   };
 
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    const items = parseAssetsCSV(text);
+    let count = 0;
+    for (const item of items) {
+      await addAsset(item);
+      count++;
+    }
+    toast.success(`Imported ${count} assets`);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleScan = (code: string) => {
+    const found = assets.find(a =>
+      a.asset_id.toLowerCase() === code.toLowerCase() ||
+      a.asset_name.toLowerCase().includes(code.toLowerCase()) ||
+      a.id === code
+    );
+    if (found) {
+      setSearch(found.asset_id);
+      toast.success(`Found: ${found.asset_name} (${found.asset_id})`);
+    } else {
+      toast.error(`No asset found for "${code}"`);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -49,9 +82,21 @@ export default function Assets() {
           <h1 className="text-2xl font-bold text-foreground">Assets</h1>
           <p className="text-sm text-muted-foreground">{assets.length} assets tracked</p>
         </div>
-        <Button onClick={() => { setEditing(null); setDialogOpen(true); }}>
-          <Plus className="h-4 w-4 mr-2" /> Add Asset
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={() => setScannerOpen(true)}>
+            <ScanLine className="h-4 w-4 mr-1" /> Scan
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => exportAssetsCSV(assets)}>
+            <Download className="h-4 w-4 mr-1" /> Export
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+            <Upload className="h-4 w-4 mr-1" /> Import
+          </Button>
+          <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleImport} />
+          <Button onClick={() => { setEditing(null); setDialogOpen(true); }}>
+            <Plus className="h-4 w-4 mr-1" /> Add Asset
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
@@ -113,6 +158,7 @@ export default function Assets() {
       </div>
 
       <AssetDialog open={dialogOpen} onOpenChange={setDialogOpen} asset={editing} onSave={handleSave} />
+      <BarcodeScanner open={scannerOpen} onOpenChange={setScannerOpen} onScan={handleScan} />
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
