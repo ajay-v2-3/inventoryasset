@@ -12,7 +12,7 @@ import {
   User,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -45,6 +45,12 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { user, role, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
@@ -125,7 +131,7 @@ export function AppSidebar() {
         )}
         <div className="flex gap-1">
           <button
-            onClick={signOut}
+            onClick={handleSignOut}
             className="flex flex-1 items-center justify-center gap-2 rounded-lg p-2 text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors text-sm"
           >
             <LogOut className="h-4 w-4" />
