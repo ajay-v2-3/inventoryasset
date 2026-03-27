@@ -23,7 +23,7 @@ export default function AdminLogin() {
     if (error) {
       toast.error(error.message);
     } else {
-      navigate("/");
+      navigate("/dashboard");
     }
   };
 
