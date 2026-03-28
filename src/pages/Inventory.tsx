@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef } from "react";
-import { Plus, Search, Pencil, Trash2, Download, Upload, ScanLine } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Download, Upload, ScanLine, Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,6 +11,8 @@ import { useProducts, LOW_STOCK_THRESHOLD, type Product } from "@/lib/store";
 import { exportProductsCSV, parseProductsCSV } from "@/lib/csv";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Label } from "@/components/ui/label";
 
 const categories = ["All", "Electronics", "Furniture", "Office Supplies", "Software", "Other"];
 
@@ -23,14 +25,38 @@ export default function Inventory() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [scannerOpen, setScannerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // Advanced filters
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [supplierFilter, setSupplierFilter] = useState("");
+
+  const suppliers = useMemo(() => {
+    const set = new Set(products.map(p => p.supplier_name).filter(Boolean));
+    return Array.from(set).sort();
+  }, [products]);
+
+  const hasActiveFilters = priceMin || priceMax || dateFrom || dateTo || supplierFilter;
+
+  const clearFilters = () => {
+    setPriceMin(""); setPriceMax(""); setDateFrom(""); setDateTo(""); setSupplierFilter("");
+  };
 
   const filtered = useMemo(() => {
     return products.filter(p => {
       const matchSearch = p.product_name.toLowerCase().includes(search.toLowerCase()) || p.supplier_name.toLowerCase().includes(search.toLowerCase());
       const matchCat = category === "All" || p.category === category;
-      return matchSearch && matchCat;
+      const matchPriceMin = !priceMin || p.price >= Number(priceMin);
+      const matchPriceMax = !priceMax || p.price <= Number(priceMax);
+      const matchDateFrom = !dateFrom || p.date_added >= dateFrom;
+      const matchDateTo = !dateTo || p.date_added <= dateTo;
+      const matchSupplier = !supplierFilter || p.supplier_name === supplierFilter;
+      return matchSearch && matchCat && matchPriceMin && matchPriceMax && matchDateFrom && matchDateTo && matchSupplier;
     });
-  }, [products, search, category]);
+  }, [products, search, category, priceMin, priceMax, dateFrom, dateTo, supplierFilter]);
 
   const handleSave = (data: Omit<Product, "id">) => {
     if (editing) {
@@ -103,7 +129,51 @@ export default function Inventory() {
             {categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
           </SelectContent>
         </Select>
+        <Button variant={hasActiveFilters ? "default" : "outline"} size="sm" onClick={() => setFiltersOpen(!filtersOpen)} className="gap-1">
+          <Filter className="h-4 w-4" /> Filters {hasActiveFilters && <Badge variant="secondary" className="ml-1 text-xs">Active</Badge>}
+        </Button>
       </div>
+
+      <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
+        <CollapsibleContent>
+          <div className="bg-card rounded-xl p-4 border space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-foreground">Advanced Filters</h3>
+              {hasActiveFilters && (
+                <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs gap-1">
+                  <X className="h-3 w-3" /> Clear all
+                </Button>
+              )}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">Price Range</Label>
+                <div className="flex gap-2 mt-1">
+                  <Input type="number" placeholder="Min" min={0} value={priceMin} onChange={e => setPriceMin(e.target.value)} className="h-8 text-sm" />
+                  <Input type="number" placeholder="Max" min={0} value={priceMax} onChange={e => setPriceMax(e.target.value)} className="h-8 text-sm" />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Date Added</Label>
+                <div className="flex gap-2 mt-1">
+                  <Input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="h-8 text-sm" />
+                  <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="h-8 text-sm" />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Supplier</Label>
+                <Select value={supplierFilter} onValueChange={v => setSupplierFilter(v === "__all__" ? "" : v)}>
+                  <SelectTrigger className="h-8 mt-1 text-sm"><SelectValue placeholder="All suppliers" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">All suppliers</SelectItem>
+                    {suppliers.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
 
       <div className="bg-card rounded-xl shadow-card overflow-hidden">
         <div className="overflow-x-auto">
@@ -116,6 +186,7 @@ export default function Inventory() {
                 <TableHead className="text-right">Price</TableHead>
                 <TableHead className="hidden md:table-cell">Supplier</TableHead>
                 <TableHead className="hidden md:table-cell">Date Added</TableHead>
+                <TableHead className="hidden lg:table-cell">Invoice</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -132,6 +203,11 @@ export default function Inventory() {
                   <TableCell className="text-right">${p.price.toFixed(2)}</TableCell>
                   <TableCell className="hidden md:table-cell">{p.supplier_name}</TableCell>
                   <TableCell className="hidden md:table-cell">{p.date_added}</TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    {p.invoice_number ? (
+                      <span className="text-xs text-muted-foreground">{p.invoice_number}</span>
+                    ) : "—"}
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
                       <Button size="icon" variant="ghost" onClick={() => { setEditing(p); setDialogOpen(true); }}>
@@ -146,7 +222,7 @@ export default function Inventory() {
               ))}
               {filtered.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No products found</TableCell>
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">No products found</TableCell>
                 </TableRow>
               )}
             </TableBody>
