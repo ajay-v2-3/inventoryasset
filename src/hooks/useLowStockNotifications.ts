@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { LOW_STOCK_THRESHOLD } from "@/lib/store";
 
 export function useLowStockNotifications() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [notified, setNotified] = useState<Set<string>>(new Set());
 
   const checkLowStock = useCallback(async () => {
@@ -22,8 +22,13 @@ export function useLowStockNotifications() {
           setNotified(prev => new Set(prev).add(p.id));
         }
       });
+
+      // Trigger backend alerts for admins
+      if (role === "admin" && data.length > 0) {
+        supabase.functions.invoke("low-stock-alerts").catch(() => {});
+      }
     }
-  }, [user, notified]);
+  }, [user, notified, role]);
 
   useEffect(() => {
     checkLowStock();
