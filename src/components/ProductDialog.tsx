@@ -23,6 +23,9 @@ export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDi
     price: 0,
     supplier_name: "",
     date_added: new Date().toISOString().slice(0, 10),
+    invoice_number: "",
+    vendor_gst: "",
+    bill_amount: 0,
   });
 
   useEffect(() => {
@@ -34,6 +37,9 @@ export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDi
         price: product.price,
         supplier_name: product.supplier_name,
         date_added: product.date_added,
+        invoice_number: product.invoice_number,
+        vendor_gst: product.vendor_gst,
+        bill_amount: product.bill_amount,
       });
     } else {
       setForm({
@@ -43,6 +49,9 @@ export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDi
         price: 0,
         supplier_name: "",
         date_added: new Date().toISOString().slice(0, 10),
+        invoice_number: "",
+        vendor_gst: "",
+        bill_amount: 0,
       });
     }
   }, [product, open]);
@@ -90,6 +99,18 @@ export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDi
           <div>
             <Label htmlFor="date">Date Added</Label>
             <Input id="date" type="date" value={form.date_added} onChange={e => setForm(f => ({ ...f, date_added: e.target.value }))} required />
+          </div>
+          <div>
+            <Label htmlFor="invoice_number">Invoice Number</Label>
+            <Input id="invoice_number" placeholder="INV-001" value={form.invoice_number} onChange={e => setForm(f => ({ ...f, invoice_number: e.target.value }))} />
+          </div>
+          <div>
+            <Label htmlFor="vendor_gst">Vendor GST</Label>
+            <Input id="vendor_gst" placeholder="GST Number" value={form.vendor_gst} onChange={e => setForm(f => ({ ...f, vendor_gst: e.target.value }))} />
+          </div>
+          <div>
+            <Label htmlFor="bill_amount">Bill Amount ($)</Label>
+            <Input id="bill_amount" type="number" min={0} step="0.01" value={form.bill_amount} onChange={e => setForm(f => ({ ...f, bill_amount: Number(e.target.value) }))} />
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>

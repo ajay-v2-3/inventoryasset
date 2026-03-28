@@ -1,9 +1,9 @@
 import { Product, Asset } from "@/lib/store";
 
 export function exportProductsCSV(products: Product[]) {
-  const header = "Product Name,Category,Quantity,Price,Supplier,Date Added";
+  const header = "Product Name,Category,Quantity,Price,Supplier,Date Added,Invoice Number,Vendor GST,Bill Amount";
   const rows = products.map(p =>
-    [p.product_name, p.category, p.quantity, p.price, p.supplier_name, p.date_added]
+    [p.product_name, p.category, p.quantity, p.price, p.supplier_name, p.date_added, p.invoice_number, p.vendor_gst, p.bill_amount]
       .map(v => `"${String(v).replace(/"/g, '""')}"`)
       .join(",")
   );
@@ -41,6 +41,9 @@ export function parseProductsCSV(text: string): Omit<Product, "id">[] {
       price: parseFloat(cols[3]) || 0,
       supplier_name: cols[4] || "",
       date_added: cols[5] || new Date().toISOString().slice(0, 10),
+      invoice_number: cols[6] || "",
+      vendor_gst: cols[7] || "",
+      bill_amount: parseFloat(cols[8]) || 0,
     };
   });
 }

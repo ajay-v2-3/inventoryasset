@@ -11,6 +11,9 @@ export interface Product {
   price: number;
   supplier_name: string;
   date_added: string;
+  invoice_number: string;
+  vendor_gst: string;
+  bill_amount: number;
 }
 
 export interface Asset {
@@ -46,7 +49,7 @@ export function useProducts() {
       toast.error("Failed to load products");
     } else {
       setProducts(
-        (data ?? []).map((p: any) => ({
+      (data ?? []).map((p: any) => ({
           id: p.id,
           product_name: p.product_name,
           category: p.category,
@@ -54,6 +57,9 @@ export function useProducts() {
           price: Number(p.price),
           supplier_name: p.supplier_name,
           date_added: p.date_added,
+          invoice_number: p.invoice_number ?? "",
+          vendor_gst: p.vendor_gst ?? "",
+          bill_amount: Number(p.bill_amount ?? 0),
         }))
       );
     }
