@@ -1,8 +1,11 @@
-import { Package, Monitor, AlertTriangle, Activity } from "lucide-react";
+import { Package, Monitor, AlertTriangle, Activity, ShoppingCart, TrendingUp } from "lucide-react";
 import { StatsCard } from "@/components/StatsCard";
 import { useProducts, useAssets, useActivities, LOW_STOCK_THRESHOLD } from "@/lib/store";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const PIE_COLORS = [
   "hsl(217, 91%, 53%)",
@@ -13,23 +16,30 @@ const PIE_COLORS = [
 ];
 
 export default function Dashboard() {
-  const { products } = useProducts();
+  const { products, updateProduct } = useProducts();
   const { assets } = useAssets();
   const activities = useActivities();
+  const navigate = useNavigate();
 
   const lowStockItems = products.filter(p => p.quantity <= LOW_STOCK_THRESHOLD);
   const activeAssets = assets.filter(a => a.status === "Active").length;
 
-  // Category breakdown
   const categoryMap = new Map<string, number>();
   products.forEach(p => categoryMap.set(p.category, (categoryMap.get(p.category) || 0) + p.quantity));
   const categoryData = Array.from(categoryMap, ([name, value]) => ({ name, value }));
 
-  // Stock levels chart
   const stockData = products.slice(0, 8).map(p => ({
     name: p.product_name.length > 12 ? p.product_name.slice(0, 12) + "…" : p.product_name,
     quantity: p.quantity,
   }));
+
+  const suggestReorder = (current: number) => Math.max(20, LOW_STOCK_THRESHOLD * 4 - current);
+
+  const handleQuickReorder = async (product: typeof products[0]) => {
+    const reorderQty = suggestReorder(product.quantity);
+    await updateProduct(product.id, { quantity: product.quantity + reorderQty });
+    toast.success(`Restocked ${product.product_name} (+${reorderQty} units)`);
+  };
 
   return (
     <div className="space-y-6">
@@ -46,7 +56,6 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Stock Levels */}
         <div className="bg-card rounded-xl shadow-card p-5">
           <h2 className="font-semibold text-foreground mb-4">Stock Levels</h2>
           <ResponsiveContainer width="100%" height={260}>
@@ -59,7 +68,6 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </div>
 
-        {/* Category Distribution */}
         <div className="bg-card rounded-xl shadow-card p-5">
           <h2 className="font-semibold text-foreground mb-4">Inventory by Category</h2>
           <div className="flex items-center justify-center">
@@ -77,21 +85,32 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Low stock alerts + Recent activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-card rounded-xl shadow-card p-5">
-          <h2 className="font-semibold text-foreground mb-3">Low Stock Alerts</h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold text-foreground flex items-center gap-2">
+              <ShoppingCart className="h-4 w-4 text-destructive" />
+              Low Stock — Quick Reorder
+            </h2>
+            {lowStockItems.length > 0 && (
+              <Button variant="ghost" size="sm" onClick={() => navigate("/inventory")}>View All</Button>
+            )}
+          </div>
           {lowStockItems.length === 0 ? (
-            <p className="text-sm text-muted-foreground">All products are well-stocked.</p>
+            <p className="text-sm text-muted-foreground">All products are well-stocked. 🎉</p>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-2 max-h-72 overflow-y-auto">
               {lowStockItems.map(p => (
-                <div key={p.id} className="flex items-center justify-between rounded-lg border p-3">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{p.product_name}</p>
-                    <p className="text-xs text-muted-foreground">{p.category}</p>
+                <div key={p.id} className="flex items-center justify-between rounded-lg border p-3 gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-foreground truncate">{p.product_name}</p>
+                    <p className="text-xs text-muted-foreground">{p.category} · {p.supplier_name || "No supplier"}</p>
                   </div>
-                  <Badge variant="destructive">{p.quantity} left</Badge>
+                  <Badge variant="destructive" className="shrink-0">{p.quantity} left</Badge>
+                  <Button size="sm" variant="outline" className="shrink-0 text-xs gap-1" onClick={() => handleQuickReorder(p)}>
+                    <TrendingUp className="h-3 w-3" />
+                    +{suggestReorder(p.quantity)}
+                  </Button>
                 </div>
               ))}
             </div>
