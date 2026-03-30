@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef } from "react";
-import { Plus, Search, Pencil, Trash2, Download, Upload, ScanLine, Filter, X } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Download, Upload, ScanLine, Filter, X, FileText } from "lucide-react";
+import { InvoiceBill } from "@/components/InvoiceBill";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -26,6 +27,7 @@ export default function Inventory() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [invoiceProduct, setInvoiceProduct] = useState<Product | null>(null);
 
   // Advanced filters
   const [priceMin, setPriceMin] = useState("");
@@ -210,6 +212,9 @@ export default function Inventory() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
+                      <Button size="icon" variant="ghost" title="View Invoice" onClick={() => setInvoiceProduct(p)}>
+                        <FileText className="h-4 w-4 text-primary" />
+                      </Button>
                       <Button size="icon" variant="ghost" onClick={() => { setEditing(p); setDialogOpen(true); }}>
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -232,6 +237,7 @@ export default function Inventory() {
 
       <ProductDialog open={dialogOpen} onOpenChange={setDialogOpen} product={editing} onSave={handleSave} />
       <BarcodeScanner open={scannerOpen} onOpenChange={setScannerOpen} onScan={handleScan} />
+      <InvoiceBill product={invoiceProduct} open={!!invoiceProduct} onOpenChange={(o) => { if (!o) setInvoiceProduct(null); }} />
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
