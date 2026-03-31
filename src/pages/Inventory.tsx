@@ -29,7 +29,7 @@ export default function Inventory() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [invoiceProduct, setInvoiceProduct] = useState<Product | null>(null);
-
+  const [historyProduct, setHistoryProduct] = useState<Product | null>(null);
   // Advanced filters
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
