@@ -1,7 +1,8 @@
 import { useState, useMemo, useRef } from "react";
-import { Plus, Search, Pencil, Trash2, Download, Upload, ScanLine, Filter, X, FileText, History } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Download, Upload, ScanLine, Filter, X, FileText, History, Layers } from "lucide-react";
 import { InvoiceBill } from "@/components/InvoiceBill";
 import { StockHistoryDialog } from "@/components/StockHistoryDialog";
+import { BulkAdjustDialog } from "@/components/BulkAdjustDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -30,7 +31,7 @@ export default function Inventory() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [invoiceProduct, setInvoiceProduct] = useState<Product | null>(null);
   const [historyProduct, setHistoryProduct] = useState<Product | null>(null);
-  // Advanced filters
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -105,6 +106,9 @@ export default function Inventory() {
           <p className="text-sm text-muted-foreground">{products.length} products total</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={() => setBulkOpen(true)}>
+            <Layers className="h-4 w-4 mr-1" /> Bulk Adjust
+          </Button>
           <Button variant="outline" size="sm" onClick={() => setScannerOpen(true)}>
             <ScanLine className="h-4 w-4 mr-1" /> Scan
           </Button>
@@ -243,6 +247,16 @@ export default function Inventory() {
       <BarcodeScanner open={scannerOpen} onOpenChange={setScannerOpen} onScan={handleScan} />
       <InvoiceBill product={invoiceProduct} open={!!invoiceProduct} onOpenChange={(o) => { if (!o) setInvoiceProduct(null); }} />
       <StockHistoryDialog productId={historyProduct?.id ?? null} productName={historyProduct?.product_name ?? ""} open={!!historyProduct} onOpenChange={(o) => { if (!o) setHistoryProduct(null); }} />
+      <BulkAdjustDialog
+        products={filtered}
+        open={bulkOpen}
+        onOpenChange={setBulkOpen}
+        onApply={async (adjustments) => {
+          for (const adj of adjustments) {
+            await updateProduct(adj.id, { quantity: adj.quantity });
+          }
+        }}
+      />
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
