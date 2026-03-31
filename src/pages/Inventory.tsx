@@ -106,6 +106,9 @@ export default function Inventory() {
           <p className="text-sm text-muted-foreground">{products.length} products total</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={() => setBulkOpen(true)}>
+            <Layers className="h-4 w-4 mr-1" /> Bulk Adjust
+          </Button>
           <Button variant="outline" size="sm" onClick={() => setScannerOpen(true)}>
             <ScanLine className="h-4 w-4 mr-1" /> Scan
           </Button>
