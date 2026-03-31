@@ -247,6 +247,16 @@ export default function Inventory() {
       <BarcodeScanner open={scannerOpen} onOpenChange={setScannerOpen} onScan={handleScan} />
       <InvoiceBill product={invoiceProduct} open={!!invoiceProduct} onOpenChange={(o) => { if (!o) setInvoiceProduct(null); }} />
       <StockHistoryDialog productId={historyProduct?.id ?? null} productName={historyProduct?.product_name ?? ""} open={!!historyProduct} onOpenChange={(o) => { if (!o) setHistoryProduct(null); }} />
+      <BulkAdjustDialog
+        products={filtered}
+        open={bulkOpen}
+        onOpenChange={setBulkOpen}
+        onApply={async (adjustments) => {
+          for (const adj of adjustments) {
+            await updateProduct(adj.id, { quantity: adj.quantity });
+          }
+        }}
+      />
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
