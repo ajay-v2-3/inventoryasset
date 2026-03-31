@@ -31,7 +31,7 @@ export default function Inventory() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [invoiceProduct, setInvoiceProduct] = useState<Product | null>(null);
   const [historyProduct, setHistoryProduct] = useState<Product | null>(null);
-  // Advanced filters
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
   const [dateFrom, setDateFrom] = useState("");
