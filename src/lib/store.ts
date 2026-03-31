@@ -84,6 +84,7 @@ export function useProducts() {
       } else {
         setProducts((prev) => [{ ...p, id: data.id, price: Number(data.price) }, ...prev]);
         addActivity(`New product added: ${p.product_name}`, "product", user.id);
+        recordStockMovement(user.id, data.id, 0, p.quantity, "initial");
       }
     },
     [user]
