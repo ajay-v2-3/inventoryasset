@@ -95,12 +95,19 @@ export function useProducts() {
       if (error) {
         toast.error("Failed to update product");
       } else {
+        // Track stock movement if quantity changed
+        if (updates.quantity !== undefined && user) {
+          const prev = products.find((p) => p.id === id);
+          if (prev && prev.quantity !== updates.quantity) {
+            recordStockMovement(user.id, id, prev.quantity, updates.quantity, "manual");
+          }
+        }
         setProducts((prev) =>
           prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
         );
       }
     },
-    []
+    [user, products]
   );
 
   const deleteProduct = useCallback(
