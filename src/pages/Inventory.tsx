@@ -242,7 +242,7 @@ export default function Inventory() {
       <ProductDialog open={dialogOpen} onOpenChange={setDialogOpen} product={editing} onSave={handleSave} />
       <BarcodeScanner open={scannerOpen} onOpenChange={setScannerOpen} onScan={handleScan} />
       <InvoiceBill product={invoiceProduct} open={!!invoiceProduct} onOpenChange={(o) => { if (!o) setInvoiceProduct(null); }} />
-
+      <StockHistoryDialog productId={historyProduct?.id ?? null} productName={historyProduct?.product_name ?? ""} open={!!historyProduct} onOpenChange={(o) => { if (!o) setHistoryProduct(null); }} />
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
