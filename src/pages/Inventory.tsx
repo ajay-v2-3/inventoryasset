@@ -1,7 +1,8 @@
 import { useState, useMemo, useRef } from "react";
-import { Plus, Search, Pencil, Trash2, Download, Upload, ScanLine, Filter, X, FileText, History } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Download, Upload, ScanLine, Filter, X, FileText, History, Layers } from "lucide-react";
 import { InvoiceBill } from "@/components/InvoiceBill";
 import { StockHistoryDialog } from "@/components/StockHistoryDialog";
+import { BulkAdjustDialog } from "@/components/BulkAdjustDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
