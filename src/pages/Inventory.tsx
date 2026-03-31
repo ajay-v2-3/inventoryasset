@@ -213,6 +213,9 @@ export default function Inventory() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
+                      <Button size="icon" variant="ghost" title="Stock History" onClick={() => setHistoryProduct(p)}>
+                        <History className="h-4 w-4 text-muted-foreground" />
+                      </Button>
                       <Button size="icon" variant="ghost" title="View Invoice" onClick={() => setInvoiceProduct(p)}>
                         <FileText className="h-4 w-4 text-primary" />
                       </Button>
