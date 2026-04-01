@@ -19,6 +19,7 @@ import Signup from "@/pages/Signup";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import NotFound from "@/pages/NotFound";
+import Features from "@/pages/Features";
 import Profile from "@/pages/Profile";
 
 const queryClient = new QueryClient();
