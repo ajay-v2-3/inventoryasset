@@ -99,7 +99,9 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} InvenTrack. Built with Lovable.
+        <Link to="/features" className="text-primary hover:underline font-medium">View All Features</Link>
+        <span className="mx-2">·</span>
+        © {new Date().getFullYear()} InvenTrack by Netpaze Solutions.
       </footer>
     </div>
   );
