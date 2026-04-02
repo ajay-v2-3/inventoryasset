@@ -22,6 +22,7 @@ const categories = ["All", "Electronics", "Furniture", "Office Supplies", "Softw
 
 export default function Inventory() {
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
+  const { locations } = useLocations();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [dialogOpen, setDialogOpen] = useState(false);
