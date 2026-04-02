@@ -21,6 +21,7 @@ import ResetPassword from "@/pages/ResetPassword";
 import NotFound from "@/pages/NotFound";
 import Features from "@/pages/Features";
 import Profile from "@/pages/Profile";
+import Locations from "@/pages/Locations";
 
 const queryClient = new QueryClient();
 
