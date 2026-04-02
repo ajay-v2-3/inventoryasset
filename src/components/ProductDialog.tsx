@@ -26,6 +26,7 @@ export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDi
     invoice_number: "",
     vendor_gst: "",
     bill_amount: 0,
+    location_id: null as string | null,
   });
 
   useEffect(() => {
