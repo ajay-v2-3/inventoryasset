@@ -62,6 +62,7 @@ export function useProducts() {
           invoice_number: p.invoice_number ?? "",
           vendor_gst: p.vendor_gst ?? "",
           bill_amount: Number(p.bill_amount ?? 0),
+          location_id: p.location_id ?? null,
         }))
       );
     }
