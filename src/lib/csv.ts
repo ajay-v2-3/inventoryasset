@@ -44,6 +44,7 @@ export function parseProductsCSV(text: string): Omit<Product, "id">[] {
       invoice_number: cols[6] || "",
       vendor_gst: cols[7] || "",
       bill_amount: parseFloat(cols[8]) || 0,
+      location_id: cols[9] || null,
     };
   });
 }
