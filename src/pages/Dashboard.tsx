@@ -133,6 +133,9 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Analytics Section */}
+      <DashboardAnalytics products={products} />
     </div>
   );
 }
