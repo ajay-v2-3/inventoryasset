@@ -156,7 +156,7 @@ export default function Inventory() {
                 </Button>
               )}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
               <div>
                 <Label className="text-xs text-muted-foreground">Price Range</Label>
                 <div className="flex gap-2 mt-1">
@@ -178,6 +178,16 @@ export default function Inventory() {
                   <SelectContent>
                     <SelectItem value="__all__">All suppliers</SelectItem>
                     {suppliers.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Location</Label>
+                <Select value={locationFilter} onValueChange={v => setLocationFilter(v === "__all__" ? "" : v)}>
+                  <SelectTrigger className="h-8 mt-1 text-sm"><SelectValue placeholder="All locations" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">All locations</SelectItem>
+                    {locations.map(l => <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
