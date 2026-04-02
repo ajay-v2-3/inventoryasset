@@ -15,6 +15,7 @@ export interface Product {
   invoice_number: string;
   vendor_gst: string;
   bill_amount: number;
+  location_id: string | null;
 }
 
 export interface Asset {
