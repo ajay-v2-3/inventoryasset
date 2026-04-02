@@ -34,6 +34,7 @@ import {
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Inventory", url: "/inventory", icon: Package },
+  { title: "Locations", url: "/locations", icon: MapPin },
   { title: "Assets", url: "/assets", icon: Monitor },
   { title: "Reports", url: "/reports", icon: FileBarChart },
   { title: "Profile", url: "/profile", icon: User },
