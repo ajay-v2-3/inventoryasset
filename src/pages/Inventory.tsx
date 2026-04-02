@@ -39,6 +39,7 @@ export default function Inventory() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [supplierFilter, setSupplierFilter] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
 
   const suppliers = useMemo(() => {
     const set = new Set(products.map(p => p.supplier_name).filter(Boolean));
