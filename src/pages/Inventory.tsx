@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { ProductDialog } from "@/components/ProductDialog";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { useProducts, LOW_STOCK_THRESHOLD, type Product } from "@/lib/store";
+import { useLocations } from "@/hooks/useLocations";
 import { exportProductsCSV, parseProductsCSV } from "@/lib/csv";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
