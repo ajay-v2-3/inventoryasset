@@ -46,10 +46,10 @@ export default function Inventory() {
     return Array.from(set).sort();
   }, [products]);
 
-  const hasActiveFilters = priceMin || priceMax || dateFrom || dateTo || supplierFilter;
+  const hasActiveFilters = priceMin || priceMax || dateFrom || dateTo || supplierFilter || locationFilter;
 
   const clearFilters = () => {
-    setPriceMin(""); setPriceMax(""); setDateFrom(""); setDateTo(""); setSupplierFilter("");
+    setPriceMin(""); setPriceMax(""); setDateFrom(""); setDateTo(""); setSupplierFilter(""); setLocationFilter("");
   };
 
   const filtered = useMemo(() => {
