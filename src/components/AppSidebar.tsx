@@ -35,6 +35,7 @@ const navItems = [
   { title: "Assets", url: "/assets", icon: Monitor },
   { title: "Reports", url: "/reports", icon: FileBarChart },
   { title: "Profile", url: "/profile", icon: User },
+  { title: "Features", url: "/features", icon: Box },
 ];
 
 const adminItems = [
