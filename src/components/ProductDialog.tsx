@@ -41,6 +41,7 @@ export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDi
         invoice_number: product.invoice_number,
         vendor_gst: product.vendor_gst,
         bill_amount: product.bill_amount,
+        location_id: product.location_id,
       });
     } else {
       setForm({
