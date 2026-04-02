@@ -98,6 +98,30 @@ export type Database = {
         }
         Relationships: []
       }
+      locations: {
+        Row: {
+          address: string
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          address?: string
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           bill_amount: number | null
@@ -106,6 +130,7 @@ export type Database = {
           date_added: string
           id: string
           invoice_number: string | null
+          location_id: string | null
           price: number
           product_name: string
           quantity: number
@@ -120,6 +145,7 @@ export type Database = {
           date_added?: string
           id?: string
           invoice_number?: string | null
+          location_id?: string | null
           price?: number
           product_name: string
           quantity?: number
@@ -134,6 +160,7 @@ export type Database = {
           date_added?: string
           id?: string
           invoice_number?: string | null
+          location_id?: string | null
           price?: number
           product_name?: string
           quantity?: number
@@ -141,7 +168,15 @@ export type Database = {
           user_id?: string
           vendor_gst?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {

@@ -1,5 +1,6 @@
 import { Package, Monitor, AlertTriangle, Activity, ShoppingCart, TrendingUp } from "lucide-react";
 import { StatsCard } from "@/components/StatsCard";
+import { DashboardAnalytics } from "@/components/DashboardAnalytics";
 import { useProducts, useAssets, useActivities, LOW_STOCK_THRESHOLD } from "@/lib/store";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Badge } from "@/components/ui/badge";
@@ -132,6 +133,9 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Analytics Section */}
+      <DashboardAnalytics products={products} />
     </div>
   );
 }

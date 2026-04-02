@@ -15,6 +15,7 @@ export interface Product {
   invoice_number: string;
   vendor_gst: string;
   bill_amount: number;
+  location_id: string | null;
 }
 
 export interface Asset {
@@ -61,6 +62,7 @@ export function useProducts() {
           invoice_number: p.invoice_number ?? "",
           vendor_gst: p.vendor_gst ?? "",
           bill_amount: Number(p.bill_amount ?? 0),
+          location_id: p.location_id ?? null,
         }))
       );
     }

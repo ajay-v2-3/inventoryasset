@@ -21,6 +21,7 @@ import ResetPassword from "@/pages/ResetPassword";
 import NotFound from "@/pages/NotFound";
 import Features from "@/pages/Features";
 import Profile from "@/pages/Profile";
+import Locations from "@/pages/Locations";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
               <Route path="/admin" element={<AdminPanel />} />
               <Route path="/audit" element={<AuditLog />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/locations" element={<Locations />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

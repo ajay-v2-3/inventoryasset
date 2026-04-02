@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { ProductDialog } from "@/components/ProductDialog";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { useProducts, LOW_STOCK_THRESHOLD, type Product } from "@/lib/store";
+import { useLocations } from "@/hooks/useLocations";
 import { exportProductsCSV, parseProductsCSV } from "@/lib/csv";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
@@ -21,6 +22,7 @@ const categories = ["All", "Electronics", "Furniture", "Office Supplies", "Softw
 
 export default function Inventory() {
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
+  const { locations } = useLocations();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -37,16 +39,17 @@ export default function Inventory() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [supplierFilter, setSupplierFilter] = useState("");
+  const [locationFilter, setLocationFilter] = useState("");
 
   const suppliers = useMemo(() => {
     const set = new Set(products.map(p => p.supplier_name).filter(Boolean));
     return Array.from(set).sort();
   }, [products]);
 
-  const hasActiveFilters = priceMin || priceMax || dateFrom || dateTo || supplierFilter;
+  const hasActiveFilters = priceMin || priceMax || dateFrom || dateTo || supplierFilter || locationFilter;
 
   const clearFilters = () => {
-    setPriceMin(""); setPriceMax(""); setDateFrom(""); setDateTo(""); setSupplierFilter("");
+    setPriceMin(""); setPriceMax(""); setDateFrom(""); setDateTo(""); setSupplierFilter(""); setLocationFilter("");
   };
 
   const filtered = useMemo(() => {
@@ -58,9 +61,10 @@ export default function Inventory() {
       const matchDateFrom = !dateFrom || p.date_added >= dateFrom;
       const matchDateTo = !dateTo || p.date_added <= dateTo;
       const matchSupplier = !supplierFilter || p.supplier_name === supplierFilter;
-      return matchSearch && matchCat && matchPriceMin && matchPriceMax && matchDateFrom && matchDateTo && matchSupplier;
+      const matchLocation = !locationFilter || p.location_id === locationFilter;
+      return matchSearch && matchCat && matchPriceMin && matchPriceMax && matchDateFrom && matchDateTo && matchSupplier && matchLocation;
     });
-  }, [products, search, category, priceMin, priceMax, dateFrom, dateTo, supplierFilter]);
+  }, [products, search, category, priceMin, priceMax, dateFrom, dateTo, supplierFilter, locationFilter]);
 
   const handleSave = (data: Omit<Product, "id">) => {
     if (editing) {
@@ -152,7 +156,7 @@ export default function Inventory() {
                 </Button>
               )}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
               <div>
                 <Label className="text-xs text-muted-foreground">Price Range</Label>
                 <div className="flex gap-2 mt-1">
@@ -174,6 +178,16 @@ export default function Inventory() {
                   <SelectContent>
                     <SelectItem value="__all__">All suppliers</SelectItem>
                     {suppliers.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Location</Label>
+                <Select value={locationFilter} onValueChange={v => setLocationFilter(v === "__all__" ? "" : v)}>
+                  <SelectTrigger className="h-8 mt-1 text-sm"><SelectValue placeholder="All locations" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__all__">All locations</SelectItem>
+                    {locations.map(l => <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
