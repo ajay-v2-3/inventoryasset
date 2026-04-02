@@ -50,7 +50,7 @@ export default function Reports() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-card rounded-xl shadow-card p-5 text-center">
           <p className="text-sm text-muted-foreground">Total Inventory Value</p>
-          <p className="text-2xl font-bold text-foreground mt-1">${totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+          <p className="text-2xl font-bold text-foreground mt-1">₹{totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
         </div>
         <div className="bg-card rounded-xl shadow-card p-5 text-center">
           <p className="text-sm text-muted-foreground">Low Stock Items</p>
