@@ -207,7 +207,7 @@ export default function Inventory() {
                       <Badge variant="destructive">{p.quantity}</Badge>
                     ) : p.quantity}
                   </TableCell>
-                  <TableCell className="text-right">${p.price.toFixed(2)}</TableCell>
+                  <TableCell className="text-right">₹{p.price.toFixed(2)}</TableCell>
                   <TableCell className="hidden md:table-cell">{p.supplier_name}</TableCell>
                   <TableCell className="hidden md:table-cell">{p.date_added}</TableCell>
                   <TableCell className="hidden lg:table-cell">

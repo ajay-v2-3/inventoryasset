@@ -93,8 +93,8 @@ export default function Reports() {
                       <TableCell className="font-medium">{p.product_name}</TableCell>
                       <TableCell>{p.category}</TableCell>
                       <TableCell className="text-right">{p.quantity}</TableCell>
-                      <TableCell className="text-right">${p.price.toFixed(2)}</TableCell>
-                      <TableCell className="text-right font-medium">${(p.price * p.quantity).toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{p.price.toFixed(2)}</TableCell>
+                      <TableCell className="text-right font-medium">₹{(p.price * p.quantity).toFixed(2)}</TableCell>
                       <TableCell>
                         {p.quantity <= LOW_STOCK_THRESHOLD ? (
                           <Badge variant="destructive">Low Stock</Badge>
