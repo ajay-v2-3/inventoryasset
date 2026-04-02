@@ -61,9 +61,10 @@ export default function Inventory() {
       const matchDateFrom = !dateFrom || p.date_added >= dateFrom;
       const matchDateTo = !dateTo || p.date_added <= dateTo;
       const matchSupplier = !supplierFilter || p.supplier_name === supplierFilter;
-      return matchSearch && matchCat && matchPriceMin && matchPriceMax && matchDateFrom && matchDateTo && matchSupplier;
+      const matchLocation = !locationFilter || p.location_id === locationFilter;
+      return matchSearch && matchCat && matchPriceMin && matchPriceMax && matchDateFrom && matchDateTo && matchSupplier && matchLocation;
     });
-  }, [products, search, category, priceMin, priceMax, dateFrom, dateTo, supplierFilter]);
+  }, [products, search, category, priceMin, priceMax, dateFrom, dateTo, supplierFilter, locationFilter]);
 
   const handleSave = (data: Omit<Product, "id">) => {
     if (editing) {
