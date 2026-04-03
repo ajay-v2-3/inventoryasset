@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { get, set, del, keys } from "idb-keyval";
+import { get, set } from "idb-keyval";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
