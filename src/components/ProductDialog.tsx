@@ -17,6 +17,7 @@ interface ProductDialogProps {
 }
 
 export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDialogProps) {
+  const { locations } = useLocations();
   const [form, setForm] = useState({
     product_name: "",
     category: "Electronics",
