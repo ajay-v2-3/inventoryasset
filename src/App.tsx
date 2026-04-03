@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
+import { OfflineIndicator } from "@/components/OfflineIndicator";
 import LandingPage from "@/pages/LandingPage";
 import Dashboard from "@/pages/Dashboard";
 import Inventory from "@/pages/Inventory";
@@ -22,6 +23,7 @@ import NotFound from "@/pages/NotFound";
 import Features from "@/pages/Features";
 import Profile from "@/pages/Profile";
 import Locations from "@/pages/Locations";
+import Install from "@/pages/Install";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +42,7 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/features" element={<Features />} />
+            <Route path="/install" element={<Install />} />
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/inventory" element={<Inventory />} />
@@ -52,6 +55,7 @@ const App = () => (
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <OfflineIndicator />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
