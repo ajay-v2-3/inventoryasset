@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Product } from "@/lib/store";
+import { useLocations } from "@/hooks/useLocations";
 
 const categories = ["Electronics", "Furniture", "Office Supplies", "Software", "Other"];
 
@@ -16,6 +17,7 @@ interface ProductDialogProps {
 }
 
 export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDialogProps) {
+  const { locations } = useLocations();
   const [form, setForm] = useState({
     product_name: "",
     category: "Electronics",
@@ -114,6 +116,16 @@ export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDi
           <div>
             <Label htmlFor="bill_amount">Bill Amount ($)</Label>
             <Input id="bill_amount" type="number" min={0} step="0.01" value={form.bill_amount} onChange={e => setForm(f => ({ ...f, bill_amount: Number(e.target.value) }))} />
+          </div>
+          <div>
+            <Label htmlFor="location">Location</Label>
+            <Select value={form.location_id ?? "none"} onValueChange={v => setForm(f => ({ ...f, location_id: v === "none" ? null : v }))}>
+              <SelectTrigger><SelectValue placeholder="Select location" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No location</SelectItem>
+                {locations.map(loc => <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
