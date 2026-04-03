@@ -117,6 +117,16 @@ export function ProductDialog({ open, onOpenChange, product, onSave }: ProductDi
             <Label htmlFor="bill_amount">Bill Amount ($)</Label>
             <Input id="bill_amount" type="number" min={0} step="0.01" value={form.bill_amount} onChange={e => setForm(f => ({ ...f, bill_amount: Number(e.target.value) }))} />
           </div>
+          <div>
+            <Label htmlFor="location">Location</Label>
+            <Select value={form.location_id ?? "none"} onValueChange={v => setForm(f => ({ ...f, location_id: v === "none" ? null : v }))}>
+              <SelectTrigger><SelectValue placeholder="Select location" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No location</SelectItem>
+                {locations.map(loc => <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <Button type="submit">{product ? "Update" : "Add"}</Button>
